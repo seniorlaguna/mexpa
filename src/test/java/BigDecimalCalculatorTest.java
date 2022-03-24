@@ -21,6 +21,18 @@ class BigDecimalCalculatorTest {
 
     // number recognition tests
     @Test
+    public void testRationalNumber() {
+        BigDecimal result = eval("1.54");
+        assertEquals(1.54, result.doubleValue());
+    }
+
+    @Test
+    public void testNegativeRationalNumber() {
+        BigDecimal result = eval("-88.9234");
+        assertEquals(-88.9234, result.doubleValue());
+    }
+
+    @Test
     public void testNaturalNumberBelowIntLimit() {
         BigDecimal result = eval("91827364");
         assertEquals(91827364, result.intValue());
@@ -40,6 +52,18 @@ class BigDecimalCalculatorTest {
     }
 
     @Test
+    public void testBasicAdditionWithRationalNumbers() {
+        BigDecimal result = eval("1.12345+5.43210");
+        assertEquals(6.55555, result.doubleValue());
+    }
+
+    @Test
+    public void testAdditionWithMixedNumbers() {
+        BigDecimal result = eval("42+0.42");
+        assertEquals(42.42, result.doubleValue());
+    }
+
+    @Test
     public void testMultipleAdditions() {
         BigDecimal result = eval("10 + 40 + 50");
         assertEquals(100, result.intValue());
@@ -56,9 +80,21 @@ class BigDecimalCalculatorTest {
     }
 
     @Test
+    public void testBasicSubtractionWithRationalNumbers() {
+        BigDecimal result = eval("1.725444-0.025442");
+        assertEquals(1.700002, result.doubleValue());
+    }
+
+    @Test
     public void testMultipleSubtractions() {
         BigDecimal result = eval("10-7-3");
         assertEquals(0, result.intValue());
+    }
+
+    @Test
+    public void testSubtractionWithMixedNumbers() {
+        BigDecimal result = eval("100-24.5-0.5-12.125-12.875");
+        assertEquals(50, result.doubleValue());
     }
 
     @Test
@@ -72,6 +108,12 @@ class BigDecimalCalculatorTest {
     public void testBasicMultiplication() {
         BigDecimal result = eval("8*9");
         assertEquals(72, result.intValue());
+    }
+
+    @Test
+    public void testBasicMultiplicationWithRationalNumbers() {
+        BigDecimal result = eval("1.5*1.5");
+        assertEquals(2.25, result.doubleValue());
     }
 
     @Test
@@ -229,5 +271,50 @@ class BigDecimalCalculatorTest {
     public void testPercentageSuffix() {
         BigDecimal result = eval("10%");
         assertEquals(0.1, result.doubleValue());
+    }
+
+    @Test
+    public void testPercentageAdd() {
+        BigDecimal result = eval("100+15%");
+        assertEquals(115, result.intValue());
+    }
+
+    @Test
+    public void testPercentageSub() {
+        BigDecimal result = eval("200-50%");
+        assertEquals(100, result.intValue());
+    }
+
+    @Test
+    public void testPercentageOver100Percent() {
+        BigDecimal result = eval("20-150%");
+        assertEquals(-10, result.intValue());
+    }
+
+    @Test
+    public void testPercentageMultiplication() {
+        BigDecimal result = eval("40*75%");
+        assertEquals(30, result.intValue());
+    }
+
+    // factorial
+    @Test
+    public void testFactorial() {
+        BigDecimal result = eval("5!");
+        assertEquals(120, result.intValue());
+    }
+
+    // functions
+    @Test
+    public void testFunction() {
+        BigDecimal result = eval("√(9)");
+        assertEquals(3, result.intValue());
+    }
+
+    // constants
+    @Test
+    public void testConstant() {
+        BigDecimal result = eval("e");
+        assertEquals(2.7, result.doubleValue());
     }
 }

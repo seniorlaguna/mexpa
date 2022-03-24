@@ -7,7 +7,15 @@ term: NUMBER
     | '(' number=addSub ')'
     ;
 
-power: term
+constant: term
+        | name=IDENTIFIER
+        ;
+
+function: constant
+        | name=(IDENTIFIER|'√') '(' x=function ')'
+        ;
+
+power: function
      | <assoc=right> left=term '^' right=power
      ;
 
@@ -20,7 +28,7 @@ prefix: implicitMul
       ;
 
 suffix: prefix
-      | <assoc=right> number=suffix '%'
+      | <assoc=right> number=suffix op=('%'|'!')
       ;
 
 mulDiv: suffix
@@ -28,10 +36,13 @@ mulDiv: suffix
       ;
 
 addSub: mulDiv
+      | left=addSub op=('+'|'-') right=mulDiv suf='%'
       | left=addSub op=('+'|'-') right=mulDiv
       ;
 
 // Lexer
-NUMBER: [ 0-9]+;
+IDENTIFIER: [a-z][a-zA-Z0-9]*;
+
+NUMBER: [ 0-9]+ ('.' [0-9]+)?;
 
 WHITESPACE: [ \r\n\t]+ -> skip;

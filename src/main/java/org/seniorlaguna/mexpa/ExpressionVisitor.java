@@ -23,6 +23,18 @@ public interface ExpressionVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTerm(ExpressionParser.TermContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ExpressionParser#constant}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConstant(ExpressionParser.ConstantContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExpressionParser#function}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunction(ExpressionParser.FunctionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ExpressionParser#power}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

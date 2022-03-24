@@ -27,6 +27,9 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
 
         T left = visit(ctx.left);
         T right = visit(ctx.right);
+        boolean isPercentage = (ctx.suf != null);
+
+        if (isPercentage) right = toPercentage(left, right);
 
         if (ctx.op.getText().equals("+")) return add(left, right);
         return subtract(left, right);
@@ -49,7 +52,8 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
 
         T number = visit(ctx.number);
 
-        return toPercentage(number);
+        if (ctx.op.getText().equals("%")) return toPercentage(number);
+        return factorial(number);
     }
 
     @Override
@@ -73,12 +77,29 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
 
     @Override
     public T visitPower(ExpressionParser.PowerContext ctx) {
-        if (ctx.left == null) return visit(ctx.term());
+        if (ctx.left == null) return visit(ctx.function());
 
         T left = visit(ctx.left);
         T right = visit(ctx.right);
 
         return pow(left, right);
+    }
+
+    @Override
+    public T visitFunction(ExpressionParser.FunctionContext ctx) {
+        if (ctx.name == null) return visit(ctx.constant());
+
+        String function = ctx.name.getText();
+        T number = visit(ctx.x);
+
+        return callFunction(function, number);
+    }
+
+    @Override
+    public T visitConstant(ExpressionParser.ConstantContext ctx) {
+        if (ctx.name == null) return visit(ctx.term());
+
+        return resolveConstant(ctx.name.getText());
     }
 
     @Override
@@ -104,4 +125,11 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
 
     public abstract T toPercentage(T number);
 
+    public abstract T toPercentage(T number, T fraction);
+
+    public abstract T factorial(T number);
+
+    public abstract T callFunction(String functionName, T x);
+
+    public abstract T resolveConstant(String constantName);
 }

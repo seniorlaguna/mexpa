@@ -1,6 +1,8 @@
+import ch.obermuhlner.math.big.BigDecimalMath;
 import org.seniorlaguna.mexpa.BaseCalculator;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
 
@@ -42,6 +44,36 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
     @Override
     public BigDecimal toPercentage(BigDecimal number) {
         return number.divide(new BigDecimal(100));
+    }
+
+    @Override
+    public BigDecimal toPercentage(BigDecimal number, BigDecimal fraction) {
+        return number.multiply(fraction.divide(new BigDecimal(100)));
+    }
+
+    @Override
+    public BigDecimal factorial(BigDecimal number) {
+        return BigDecimalMath.factorial(number, MathContext.DECIMAL32);
+    }
+
+    @Override
+    public BigDecimal callFunction(String functionName, BigDecimal x) {
+        switch (functionName) {
+            case "√":
+                return BigDecimalMath.sqrt(x, MathContext.DECIMAL32);
+            default:
+                return x;
+        }
+    }
+
+    @Override
+    public BigDecimal resolveConstant(String constantName) {
+        switch (constantName) {
+            case "e":
+                return new BigDecimal(2.7);
+            default:
+                return BigDecimal.ONE;
+        }
     }
 }
 

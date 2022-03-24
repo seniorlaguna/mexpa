@@ -5,37 +5,103 @@ import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import java.math.BigDecimal;
-
 public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
 
-    public T evaluate(String expression) {
+    private String removeSpaces(String number) {
+        return number.replaceAll(" ", "");
+    }
+
+    final public T evaluate(String expression) {
         CodePointCharStream charStream = CharStreams.fromString(expression);
         ExpressionLexer lexer = new ExpressionLexer(charStream);
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
         ExpressionParser parser = new ExpressionParser(tokenStream);
-        ParseTree tree = parser.entrypoint();
+        ParseTree tree = parser.parse();
         return visit(tree);
     }
 
-    @Override
-    public abstract T visitPow(ExpressionParser.PowContext ctx);
 
     @Override
-    public abstract T visitUnaryMinus(ExpressionParser.UnaryMinusContext ctx);
+    public T visitAddSub(ExpressionParser.AddSubContext ctx) {
+        if (ctx.left == null) return visit(ctx.mulDiv());
+
+        T left = visit(ctx.left);
+        T right = visit(ctx.right);
+
+        if (ctx.op.getText().equals("+")) return add(left, right);
+        return subtract(left, right);
+    }
 
     @Override
-    public abstract T visitImplicitMul(ExpressionParser.ImplicitMulContext ctx);
+    public T visitMulDiv(ExpressionParser.MulDivContext ctx) {
+        if (ctx.left == null) return visit(ctx.suffix());
+
+        T left = visit(ctx.left);
+        T right = visit(ctx.right);
+
+        if (ctx.op.getText().equals("*")) return multiply(left, right);
+        return divide(left, right);
+    }
 
     @Override
-    public abstract T visitBrackets(ExpressionParser.BracketsContext ctx);
+    public T visitSuffix(ExpressionParser.SuffixContext ctx) {
+        if (ctx.number == null) return visit(ctx.prefix());
+
+        T number = visit(ctx.number);
+
+        return toPercentage(number);
+    }
 
     @Override
-    public abstract T visitAddOrSub(ExpressionParser.AddOrSubContext ctx);
+    public T visitPrefix(ExpressionParser.PrefixContext ctx) {
+        if (ctx.number == null) return visit(ctx.implicitMul());
+
+        T number = visit(ctx.number);
+
+        return negate(number);
+    }
 
     @Override
-    public abstract T visitMulOrDiv(ExpressionParser.MulOrDivContext ctx);
+    public T visitImplicitMul(ExpressionParser.ImplicitMulContext ctx) {
+        if (ctx.left == null) return visit(ctx.power());
+
+        T left = visit(ctx.left);
+        T right = visit(ctx.right);
+
+        return multiply(left, right);
+    }
 
     @Override
-    public abstract T visitNumber(ExpressionParser.NumberContext ctx);
+    public T visitPower(ExpressionParser.PowerContext ctx) {
+        if (ctx.left == null) return visit(ctx.term());
+
+        T left = visit(ctx.left);
+        T right = visit(ctx.right);
+
+        return pow(left, right);
+    }
+
+    @Override
+    public T visitTerm(ExpressionParser.TermContext ctx) {
+        if (ctx.number == null) return toNumber(removeSpaces(ctx.NUMBER().getText()));
+
+        return visit(ctx.number);
+    }
+
+    public abstract T toNumber(String number);
+
+    public abstract T add(T left, T right);
+
+    public abstract T subtract(T left, T right);
+
+    public abstract T multiply(T left, T right);
+
+    public abstract T divide(T left, T right);
+
+    public abstract T pow(T left, T right);
+
+    public abstract T negate(T number);
+
+    public abstract T toPercentage(T number);
+
 }

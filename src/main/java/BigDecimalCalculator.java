@@ -1,64 +1,47 @@
 import org.seniorlaguna.mexpa.BaseCalculator;
-import org.seniorlaguna.mexpa.ExpressionParser;
 
 import java.math.BigDecimal;
 
 public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
 
-    private String removeSpaces(String text) {
-        return text.replaceAll(" ", "");
+    @Override
+    public BigDecimal toNumber(String number) {
+        return new BigDecimal(number);
     }
 
     @Override
-    public BigDecimal visitPow(ExpressionParser.PowContext ctx) {
-        BigDecimal left = visit(ctx.left);
-        BigDecimal right = visit(ctx.right);
-        return left.pow(right.intValue());
+    public BigDecimal add(BigDecimal left, BigDecimal right) {
+        return left.add(right);
     }
 
     @Override
-    public BigDecimal visitUnaryMinus(ExpressionParser.UnaryMinusContext ctx) {
-        BigDecimal number = visit(ctx.expression());
-        return number.multiply(new BigDecimal(-1));
+    public BigDecimal subtract(BigDecimal left, BigDecimal right) {
+        return left.subtract(right);
     }
 
     @Override
-    public BigDecimal visitImplicitMul(ExpressionParser.ImplicitMulContext ctx) {
-        BigDecimal left = visit(ctx.left);
-        BigDecimal right = visit(ctx.right);
+    public BigDecimal multiply(BigDecimal left, BigDecimal right) {
         return left.multiply(right);
     }
 
     @Override
-    public BigDecimal visitBrackets(ExpressionParser.BracketsContext ctx) {
-        return visit(ctx.expression());
-    }
-
-    @Override
-    public BigDecimal visitMulOrDiv(ExpressionParser.MulOrDivContext ctx) {
-        BigDecimal left = visit(ctx.left);
-        BigDecimal right = visit(ctx.right);
-        String operator = ctx.op.getText();
-
-        if (operator.equals("*")) return left.multiply(right);
+    public BigDecimal divide(BigDecimal left, BigDecimal right) {
         return left.divide(right);
     }
 
     @Override
-    public BigDecimal visitAddOrSub(ExpressionParser.AddOrSubContext ctx) {
-        BigDecimal left = visit(ctx.left);
-        BigDecimal right = visit(ctx.right);
-        String operator = ctx.op.getText();
-
-        if (operator.equals("+")) return left.add(right);
-        return left.subtract(right);
-
+    public BigDecimal pow(BigDecimal left, BigDecimal right) {
+        return left.pow(right.intValue());
     }
 
     @Override
-    public BigDecimal visitNumber(ExpressionParser.NumberContext ctx) {
-        String number = removeSpaces(ctx.NUMBER().getText());
-        return new BigDecimal(number);
+    public BigDecimal negate(BigDecimal number) {
+        return number.multiply(new BigDecimal(-1));
+    }
+
+    @Override
+    public BigDecimal toPercentage(BigDecimal number) {
+        return number.divide(new BigDecimal(100));
     }
 }
 

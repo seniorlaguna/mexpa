@@ -2,6 +2,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -79,6 +80,18 @@ class BigDecimalCalculatorTest {
         assertEquals(362880, result.intValue());
     }
 
+    @Test
+    public void testPositiveNegativeMultiplication() {
+        BigDecimal result = eval("-8*19");
+        assertEquals(-152, result.intValue());
+    }
+
+    @Test
+    public void testNegativeNegativeMultiplication() {
+        BigDecimal result = eval("-12*-15");
+        assertEquals(180, result.intValue());
+    }
+
     // test division
     @Test
     public void testBasicDivision() {
@@ -90,6 +103,18 @@ class BigDecimalCalculatorTest {
     public void testMultipleDivisions() {
         BigDecimal result = eval("2048/2/512");
         assertEquals(2, result.intValue());
+    }
+
+    @Test
+    public void testPositiveNegativeDivision() {
+        BigDecimal result = eval("1024/-4");
+        assertEquals(-256, result.intValue());
+    }
+
+    @Test
+    public void testNegativeNegativeDivision() {
+        BigDecimal result = eval("-81/-9");
+        assertEquals(9, result.intValue());
     }
 
     // brackets
@@ -141,8 +166,8 @@ class BigDecimalCalculatorTest {
 
     @Test
     void testMultiplePowers() {
-        BigDecimal result = eval("2^3^2^1^0");
-        assertEquals(1, result.intValue());
+        BigDecimal result = eval("2^3^2");
+        assertEquals(512, result.intValue());
     }
 
     // test precedence
@@ -160,10 +185,18 @@ class BigDecimalCalculatorTest {
         assertEquals(2, result.intValue());
     }
 
+    @Test void testPrecedenceWithUnaryMinusAndPower() {
+        BigDecimal result = eval("-1^2");
+        assertEquals(-1, result.intValue());
+
+        result = eval("(-1)^2");
+        assertEquals(1, result.intValue());
+    }
+
     @Test
     public void testPrecedenceWithImplicitMultiplication() {
-        BigDecimal result = eval("(1+5)(6)-6^2");
-        assertEquals(0, result.intValue());
+        BigDecimal result = calculator.evaluate("(2)(2)+2");
+        assertEquals(6, result.intValue());
     }
 
     // white space tests
@@ -189,5 +222,12 @@ class BigDecimalCalculatorTest {
     public void testWithWhitespaceAsNumberSeparator() {
         BigDecimal result = eval("4 000 190 + 10 000 310");
         assertEquals(14000500, result.intValue());
+    }
+
+    // percentage
+    @Test
+    public void testPercentageSuffix() {
+        BigDecimal result = eval("10%");
+        assertEquals(0.1, result.doubleValue());
     }
 }

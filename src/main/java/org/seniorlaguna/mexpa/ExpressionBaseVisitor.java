@@ -17,14 +17,21 @@ public class ExpressionBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEntrypoint(ExpressionParser.EntrypointContext ctx) { return visitChildren(ctx); }
+	@Override public T visitParse(ExpressionParser.ParseContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNumber(ExpressionParser.NumberContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTerm(ExpressionParser.TermContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitPower(ExpressionParser.PowerContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -38,33 +45,26 @@ public class ExpressionBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitUnaryMinus(ExpressionParser.UnaryMinusContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrefix(ExpressionParser.PrefixContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMulOrDiv(ExpressionParser.MulOrDivContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSuffix(ExpressionParser.SuffixContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAddOrSub(ExpressionParser.AddOrSubContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMulDiv(ExpressionParser.MulDivContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPow(ExpressionParser.PowContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitBrackets(ExpressionParser.BracketsContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAddSub(ExpressionParser.AddSubContext ctx) { return visitChildren(ctx); }
 }

@@ -11,58 +11,51 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface ExpressionVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link ExpressionParser#entrypoint}.
+	 * Visit a parse tree produced by {@link ExpressionParser#parse}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitEntrypoint(ExpressionParser.EntrypointContext ctx);
+	T visitParse(ExpressionParser.ParseContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code number}
-	 * labeled alternative in {@link ExpressionParser#expression}.
+	 * Visit a parse tree produced by {@link ExpressionParser#term}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNumber(ExpressionParser.NumberContext ctx);
+	T visitTerm(ExpressionParser.TermContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code implicitMul}
-	 * labeled alternative in {@link ExpressionParser#expression}.
+	 * Visit a parse tree produced by {@link ExpressionParser#power}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPower(ExpressionParser.PowerContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExpressionParser#implicitMul}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitImplicitMul(ExpressionParser.ImplicitMulContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code unaryMinus}
-	 * labeled alternative in {@link ExpressionParser#expression}.
+	 * Visit a parse tree produced by {@link ExpressionParser#prefix}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitUnaryMinus(ExpressionParser.UnaryMinusContext ctx);
+	T visitPrefix(ExpressionParser.PrefixContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code mulOrDiv}
-	 * labeled alternative in {@link ExpressionParser#expression}.
+	 * Visit a parse tree produced by {@link ExpressionParser#suffix}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMulOrDiv(ExpressionParser.MulOrDivContext ctx);
+	T visitSuffix(ExpressionParser.SuffixContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code addOrSub}
-	 * labeled alternative in {@link ExpressionParser#expression}.
+	 * Visit a parse tree produced by {@link ExpressionParser#mulDiv}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAddOrSub(ExpressionParser.AddOrSubContext ctx);
+	T visitMulDiv(ExpressionParser.MulDivContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code pow}
-	 * labeled alternative in {@link ExpressionParser#expression}.
+	 * Visit a parse tree produced by {@link ExpressionParser#addSub}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPow(ExpressionParser.PowContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code brackets}
-	 * labeled alternative in {@link ExpressionParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBrackets(ExpressionParser.BracketsContext ctx);
+	T visitAddSub(ExpressionParser.AddSubContext ctx);
 }

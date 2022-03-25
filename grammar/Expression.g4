@@ -7,15 +7,15 @@ term: NUMBER
     | '(' number=addSub ')'
     ;
 
-constant: term
-        | name=IDENTIFIER
-        ;
-
-function: constant
+function: term
         | name=(IDENTIFIER|'√') '(' x=function ')'
         ;
 
-power: function
+constant: function
+        | name=(IDENTIFIER|'π')
+        ;
+
+power: constant
      | <assoc=right> left=term '^' right=power
      ;
 

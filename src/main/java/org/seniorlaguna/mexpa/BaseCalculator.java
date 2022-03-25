@@ -11,7 +11,7 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
         return number.replaceAll(" ", "");
     }
 
-    final public T evaluate(String expression) {
+    public T evaluate(String expression) {
         CodePointCharStream charStream = CharStreams.fromString(expression);
         ExpressionLexer lexer = new ExpressionLexer(charStream);
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -77,7 +77,7 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
 
     @Override
     public T visitPower(ExpressionParser.PowerContext ctx) {
-        if (ctx.left == null) return visit(ctx.function());
+        if (ctx.left == null) return visit(ctx.constant());
 
         T left = visit(ctx.left);
         T right = visit(ctx.right);
@@ -87,7 +87,7 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
 
     @Override
     public T visitFunction(ExpressionParser.FunctionContext ctx) {
-        if (ctx.name == null) return visit(ctx.constant());
+        if (ctx.name == null) return visit(ctx.term());
 
         String function = ctx.name.getText();
         T number = visit(ctx.x);
@@ -97,7 +97,7 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
 
     @Override
     public T visitConstant(ExpressionParser.ConstantContext ctx) {
-        if (ctx.name == null) return visit(ctx.term());
+        if (ctx.name == null) return visit(ctx.function());
 
         return resolveConstant(ctx.name.getText());
     }
@@ -132,4 +132,32 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
     public abstract T callFunction(String functionName, T x);
 
     public abstract T resolveConstant(String constantName);
+
+    static public class UnknownFunctionException extends RuntimeException {
+
+        String functionName;
+
+        public UnknownFunctionException(String functionName) {
+            this.functionName = functionName;
+        }
+
+        @Override
+        public String getMessage() {
+            return String.format("Unknown function: %s", functionName);
+        }
+    }
+
+    static public class UnknownConstantException extends RuntimeException {
+
+        String constantName;
+
+        public UnknownConstantException(String constantName) {
+            this.constantName = constantName;
+        }
+
+        @Override
+        public String getMessage() {
+            return String.format("Unknown constant: %s", constantName);
+        }
+    }
 }

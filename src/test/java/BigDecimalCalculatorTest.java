@@ -1,8 +1,10 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import org.seniorlaguna.mexpa.BaseCalculator;
+import org.seniorlaguna.mexpa.BigDecimalCalculator;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,7 +18,27 @@ class BigDecimalCalculatorTest {
 
     @BeforeEach
     void setUp() {
-        calculator = new BigDecimalCalculator();
+        calculator = new BigDecimalCalculator(2, false, true, 1024);
+    }
+
+    // calculator instantiation
+    @Test
+    public void testCreateNewCalculator() {
+        calculator = new BigDecimalCalculator(100, true, false, 100);
+        assertEquals(100, calculator.getDecimalPlaces());
+        assertTrue(calculator.getRoundingUp());
+        assertFalse(calculator.getUseRadians());
+        assertEquals(100, calculator.getPrecision());
+    }
+
+    @Test
+    public void testCreateNewCalculatorWithInvalidParams() {
+        assertThrowsExactly(BigDecimalCalculator.InvalidStartUpConfigurationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                calculator = new BigDecimalCalculator(-10, false, true, -25);
+            }
+        });
     }
 
     // number recognition tests
@@ -28,6 +50,7 @@ class BigDecimalCalculatorTest {
 
     @Test
     public void testNegativeRationalNumber() {
+        calculator.setDecimalPlaces(4);
         BigDecimal result = eval("-88.9234");
         assertEquals(-88.9234, result.doubleValue());
     }
@@ -53,6 +76,7 @@ class BigDecimalCalculatorTest {
 
     @Test
     public void testBasicAdditionWithRationalNumbers() {
+        calculator.setDecimalPlaces(5);
         BigDecimal result = eval("1.12345+5.43210");
         assertEquals(6.55555, result.doubleValue());
     }
@@ -81,6 +105,7 @@ class BigDecimalCalculatorTest {
 
     @Test
     public void testBasicSubtractionWithRationalNumbers() {
+        calculator.setDecimalPlaces(6);
         BigDecimal result = eval("1.725444-0.025442");
         assertEquals(1.700002, result.doubleValue());
     }
@@ -306,15 +331,156 @@ class BigDecimalCalculatorTest {
 
     // functions
     @Test
-    public void testFunction() {
+    public void testSquareRoot() {
         BigDecimal result = eval("√(9)");
         assertEquals(3, result.intValue());
     }
 
+    @Test
+    public void testSinRad() {
+        BigDecimal result = eval("sin(0)");
+        assertEquals(0, result.doubleValue());
+        result = eval("sin(π)");
+        assertEquals(0, result.doubleValue());
+    }
+
+     @Test
+     public void testSinDeg() {}
+
+
+    @Test
+    public void testUnknownFunction() {
+        assertThrowsExactly(BaseCalculator.UnknownFunctionException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                BigDecimal result = eval("1+unknownFunction(10)");
+            }
+        });
+    }
     // constants
     @Test
-    public void testConstant() {
+    public void testConstantE() {
         BigDecimal result = eval("e");
-        assertEquals(2.7, result.doubleValue());
+        assertEquals(2.71, result.doubleValue());
+    }
+
+    @Test
+    public void testConstantPi() {
+        BigDecimal result = eval("π");
+        assertEquals(3.14, result.doubleValue());
+    }
+
+    @Test
+    public void testUnknownConstant() {
+        assertThrowsExactly(BaseCalculator.UnknownConstantException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                eval("unknownConstant^2");
+            }
+        });
+    }
+
+    // calculator configuration
+    @Test
+    public void testSetDecimalPlaces() {
+        calculator.setDecimalPlaces(2);
+    }
+
+    @Test
+    public void testGetDecimalPlaces() {
+        int decimalPlaces = calculator.getDecimalPlaces();
+    }
+
+    @Test
+    public void testDecimalPlacesPersistence() {
+        calculator.setDecimalPlaces(5);
+        assertEquals(5, calculator.getDecimalPlaces());
+        calculator.setDecimalPlaces(100);
+        assertEquals(100, calculator.getDecimalPlaces());
+        calculator.setDecimalPlaces(2000);
+        assertEquals(2000, calculator.getDecimalPlaces());
+    }
+
+    @Test
+    public void testNegativeDecimalPlaces() {
+        calculator.setDecimalPlaces(5);
+        calculator.setDecimalPlaces(-10);
+        assertEquals(5, calculator.getDecimalPlaces());
+    }
+
+    @Test
+    public void testSetRoundingUp() {
+        calculator.setRoundingUp(true);
+    }
+
+    @Test
+    public void testGetRoundingUp() {
+        boolean roundUp = calculator.getRoundingUp();
+    }
+
+    @Test
+    public void testRoundingUpPersistence() {
+        calculator.setRoundingUp(true);
+        assertTrue(calculator.getRoundingUp());
+        calculator.setRoundingUp(false);
+        assertFalse(calculator.getRoundingUp());
+    }
+
+    @Test
+    public void testSetUseRadians() {
+        calculator.setUseRadians(true);
+    }
+
+    @Test
+    public void testGetUseRadians() {
+        boolean useRadians = calculator.getUseRadians();
+    }
+
+    @Test
+    public void testUseRadiansPersistence() {
+        calculator.setUseRadians(true);
+        assertTrue(calculator.getUseRadians());
+        calculator.setUseRadians(false);
+        assertFalse(calculator.getUseRadians());
+    }
+
+    @Test
+    public void testSetPrecision() {
+        calculator.setPrecision(100);
+    }
+
+    @Test
+    public void testGetPrecision() {
+        int precision = calculator.getPrecision();
+    }
+
+    @Test
+    public void testPrecisionPersistence() {
+        calculator.setPrecision(100);
+        assertEquals(100, calculator.getPrecision());
+        calculator.setPrecision(321);
+        assertEquals(321, calculator.getPrecision());
+    }
+
+    @Test
+    public void testSetNegativePrecision() {
+        calculator.setPrecision(25);
+        calculator.setPrecision(-1030);
+        assertEquals(25, calculator.getPrecision());
+    }
+
+    // decimal places
+    @Test
+    public void testDecimalPlacesAfterCalculation() {
+        calculator.setDecimalPlaces(1);
+        BigDecimal result = eval("1.05+1.05");
+        assertEquals(2.1, result.doubleValue());
+    }
+
+    @Test
+    public void testDecimalPlacesWithNegativeNumbers() {
+        calculator.setDecimalPlaces(6);
+        BigDecimal result = eval("10-12.654321");
+        assertEquals(-2.654321, result.doubleValue());
     }
 }

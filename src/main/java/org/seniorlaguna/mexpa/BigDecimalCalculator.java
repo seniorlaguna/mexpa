@@ -1,8 +1,6 @@
 package org.seniorlaguna.mexpa;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
-import ch.obermuhlner.math.big.DefaultBigDecimalMath;
-import org.seniorlaguna.mexpa.BaseCalculator;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -21,6 +19,11 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
         mathContext = new MathContext(precision, roundingUp ? RoundingMode.UP : RoundingMode.DOWN);
         this.decimalPlaces = decimalPlaces;
         this.useRadians = useRadians;
+    }
+
+    private BigDecimal degreesToRadians(BigDecimal degrees) {
+        BigDecimal factor = BigDecimalMath.pi(mathContext).divide(new BigDecimal(180), mathContext);
+        return degrees.multiply(factor);
     }
 
     @Override
@@ -50,12 +53,12 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
 
     @Override
     public BigDecimal divide(BigDecimal left, BigDecimal right) {
-        return left.divide(right);
+        return left.divide(right, MathContext.DECIMAL128);
     }
 
     @Override
     public BigDecimal pow(BigDecimal left, BigDecimal right) {
-        return left.pow(right.intValue());
+        return BigDecimalMath.pow(left, right, MathContext.DECIMAL128);
     }
 
     @Override
@@ -79,12 +82,24 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
     }
 
     @Override
+    public boolean isConstant(String constantName) {
+        return constantName.equals("e") || constantName.equals("π");
+    }
+
+    @Override
     public BigDecimal callFunction(String functionName, BigDecimal x) throws UnknownFunctionException {
         switch (functionName) {
             case "sin":
+                if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.sin(x, MathContext.DECIMAL32);
+            case "cos":
+                if (!useRadians) x = degreesToRadians(x);
+                return BigDecimalMath.cos(x, mathContext);
+            case "tan":
+                if (!useRadians) x = degreesToRadians(x);
+                return BigDecimalMath.tan(x, MathContext.DECIMAL32);
             case "√":
-                return BigDecimalMath.sqrt(x, MathContext.DECIMAL32);
+                return BigDecimalMath.sqrt(x, mathContext);
             default:
                 throw new UnknownFunctionException(functionName);
         }

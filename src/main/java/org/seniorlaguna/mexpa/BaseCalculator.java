@@ -20,25 +20,63 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
         return visit(tree);
     }
 
+    @Override
+    public T visitNumber(ExpressionParser.NumberContext ctx) {
+        return toNumber(removeSpaces(ctx.NUMBER().getText()));
+    }
 
     @Override
-    public T visitAddSub(ExpressionParser.AddSubContext ctx) {
-        if (ctx.left == null) return visit(ctx.mulDiv());
+    public T visitConstFunc(ExpressionParser.ConstFuncContext ctx) {
 
+        String identifier = ctx.identifier.getText();
+
+        if (ctx.expr() == null) return resolveConstant(identifier);
+
+        T number = visit(ctx.expr());
+        if (isConstant(identifier)) {
+            T constant = resolveConstant(identifier);
+            return multiply(constant, number);
+        }
+        return callFunction(identifier, number);
+
+    }
+
+    @Override
+    public T visitBrackets(ExpressionParser.BracketsContext ctx) {
+        return visit(ctx.expr());
+    }
+
+    @Override
+    public T visitPower(ExpressionParser.PowerContext ctx) {
         T left = visit(ctx.left);
         T right = visit(ctx.right);
-        boolean isPercentage = (ctx.suf != null);
 
-        if (isPercentage) right = toPercentage(left, right);
+        return pow(left, right);
+    }
 
-        if (ctx.op.getText().equals("+")) return add(left, right);
-        return subtract(left, right);
+    @Override
+    public T visitImplicitMul(ExpressionParser.ImplicitMulContext ctx) {
+        T left = visit(ctx.left);
+        T right = visit(ctx.right);
+
+        return multiply(left, right);
+    }
+
+    @Override
+    public T visitUnaryMinus(ExpressionParser.UnaryMinusContext ctx) {
+        T number = visit(ctx.expr2());
+        return negate(number);
+    }
+
+    @Override
+    public T visitSuffix(ExpressionParser.SuffixContext ctx) {
+        T number = visit(ctx.expr2());
+        if (ctx.op.getText().equals("!")) return factorial(number);
+        return toPercentage(number);
     }
 
     @Override
     public T visitMulDiv(ExpressionParser.MulDivContext ctx) {
-        if (ctx.left == null) return visit(ctx.suffix());
-
         T left = visit(ctx.left);
         T right = visit(ctx.right);
 
@@ -47,66 +85,21 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
     }
 
     @Override
-    public T visitSuffix(ExpressionParser.SuffixContext ctx) {
-        if (ctx.number == null) return visit(ctx.prefix());
+    public T visitAddSubPerc(ExpressionParser.AddSubPercContext ctx) {
+        T left = visit(ctx.left);
+        T right = toPercentage(left, visit(ctx.right));
 
-        T number = visit(ctx.number);
-
-        if (ctx.op.getText().equals("%")) return toPercentage(number);
-        return factorial(number);
+        if (ctx.op.getText().equals("+")) return add(left, right);
+        return subtract(left, right);
     }
 
     @Override
-    public T visitPrefix(ExpressionParser.PrefixContext ctx) {
-        if (ctx.number == null) return visit(ctx.implicitMul());
-
-        T number = visit(ctx.number);
-
-        return negate(number);
-    }
-
-    @Override
-    public T visitImplicitMul(ExpressionParser.ImplicitMulContext ctx) {
-        if (ctx.left == null) return visit(ctx.power());
-
+    public T visitAddSub(ExpressionParser.AddSubContext ctx) {
         T left = visit(ctx.left);
         T right = visit(ctx.right);
 
-        return multiply(left, right);
-    }
-
-    @Override
-    public T visitPower(ExpressionParser.PowerContext ctx) {
-        if (ctx.left == null) return visit(ctx.constant());
-
-        T left = visit(ctx.left);
-        T right = visit(ctx.right);
-
-        return pow(left, right);
-    }
-
-    @Override
-    public T visitFunction(ExpressionParser.FunctionContext ctx) {
-        if (ctx.name == null) return visit(ctx.term());
-
-        String function = ctx.name.getText();
-        T number = visit(ctx.x);
-
-        return callFunction(function, number);
-    }
-
-    @Override
-    public T visitConstant(ExpressionParser.ConstantContext ctx) {
-        if (ctx.name == null) return visit(ctx.function());
-
-        return resolveConstant(ctx.name.getText());
-    }
-
-    @Override
-    public T visitTerm(ExpressionParser.TermContext ctx) {
-        if (ctx.number == null) return toNumber(removeSpaces(ctx.NUMBER().getText()));
-
-        return visit(ctx.number);
+        if (ctx.op.getText().equals("+")) return add(left, right);
+        return subtract(left, right);
     }
 
     public abstract T toNumber(String number);
@@ -128,6 +121,8 @@ public abstract class BaseCalculator<T> extends ExpressionBaseVisitor<T> {
     public abstract T toPercentage(T number, T fraction);
 
     public abstract T factorial(T number);
+
+    public abstract boolean isConstant(String constantName);
 
     public abstract T callFunction(String functionName, T x);
 

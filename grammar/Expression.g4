@@ -1,44 +1,36 @@
 grammar Expression;
 
 // Parser
-parse: addSub | EOF;
 
-term: NUMBER
-    | '(' number=addSub ')'
-    ;
+parse: expr | EOF;
 
-function: term
-        | name=(IDENTIFIER|'√') '(' x=function ')'
-        ;
+term
+	:	NUMBER #number
+	|   identifier=(IDENTIFIER|'π'|'√') ('(' expr ')')? #constFunc
+	|	'(' expr ')' #brackets
+	;
 
-constant: function
-        | name=(IDENTIFIER|'π')
-        ;
+//Implicit multiplication
+factor
+	:	term #factorUp
+	|	<assoc=right> left=term '^' right=factor #power
+	|	left=term right=factor #implicitMul
+	;
 
-power: constant
-     | <assoc=right> left=term '^' right=power
-     ;
 
-implicitMul: power
-           | left=implicitMul right=power
-           ;
+expr2
+	:	factor #exprUp2
+	|	'-' expr2 #unaryMinus
+	|   <assoc=right> left=expr2 op=('%'|'!') #suffix
+	|	left=expr2 op=('*'|'/') right=expr2 #mulDiv
+	;
 
-prefix: implicitMul
-      | '-' number=prefix
-      ;
+expr
+	:	expr2 #exprUp
+	|   left=expr op=('+' | '-') right=expr2 suf='%' #addSubPerc
+	|	left=expr op=('+' | '-') right=expr2 #addSub
+	;
 
-suffix: prefix
-      | <assoc=right> number=suffix op=('%'|'!')
-      ;
-
-mulDiv: suffix
-      | left=mulDiv op=('*'|'/') right=suffix
-      ;
-
-addSub: mulDiv
-      | left=addSub op=('+'|'-') right=mulDiv suf='%'
-      | left=addSub op=('+'|'-') right=mulDiv
-      ;
 
 // Lexer
 IDENTIFIER: [a-z][a-zA-Z0-9]*;

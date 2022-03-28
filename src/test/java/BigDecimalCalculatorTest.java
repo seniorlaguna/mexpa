@@ -237,6 +237,12 @@ class BigDecimalCalculatorTest {
         assertEquals(512, result.intValue());
     }
 
+    @Test
+    void testPowerAsSquareRoot() {
+        BigDecimal result = eval("81^0.5");
+        assertEquals(9, result.doubleValue());
+    }
+
     // test precedence
     @Test
     public void testAddSubMulDivPrecedence() {
@@ -338,15 +344,68 @@ class BigDecimalCalculatorTest {
 
     @Test
     public void testSinRad() {
-        BigDecimal result = eval("sin(0)");
-        assertEquals(0, result.doubleValue());
-        result = eval("sin(π)");
-        assertEquals(0, result.doubleValue());
+        String[] expressions    = {
+                "sin(0)",
+                "sin(π/6)",
+                "sin(π/4)",
+                "sin(π/3)",
+                "sin(π/2)",
+                "sin(2π/3)",
+                "sin(3π/4)",
+                "sin(5π/6)",
+                "sin(π)",
+                "sin(3π/2)",
+                "sin(2π)"
+        };
+        double[] results = {0, 0.5, 0.7, 0.86, 1, 0.86, 0.7, 0.5, 0, -1, 0};
+
+        for (int i=0; i<expressions.length; i++) {
+            BigDecimal result = eval(expressions[i]);
+            assertEquals(results[i], result.doubleValue());
+        }
     }
 
      @Test
-     public void testSinDeg() {}
+     public void testSinDeg() {
+        calculator.setUseRadians(false);
+        BigDecimal result = eval("sin(0)");
+        assertEquals(0, result.doubleValue());
+         result = eval("sin(90)");
+         assertEquals(1, result.doubleValue());
+     }
 
+     @Test
+     public void testCosRad() {
+        BigDecimal result = eval("cos(0)");
+        assertEquals(1, result.doubleValue());
+        result = eval("cos(π/2)");
+        assertEquals(0, result.doubleValue());
+     }
+
+     @Test
+     public void testCosDeg() {
+        calculator.setUseRadians(false);
+        BigDecimal result = eval("cos(0)");
+        assertEquals(1, result.doubleValue());
+        result = eval("cos(90)");
+        assertEquals(0, result.doubleValue());
+     }
+
+     @Test
+     public void testTanRad() {
+        BigDecimal result = eval("tan(0)");
+        assertEquals(0, result.doubleValue());
+        result = eval("tan(π/4)");
+        assertEquals(1, result.doubleValue());
+     }
+
+     @Test void testTanDeg() {
+        calculator.setUseRadians(false);
+        BigDecimal result = eval("tan(0)");
+        assertEquals(0, result.doubleValue());
+        result = eval("tan(45)");
+        assertEquals(1, result.doubleValue());
+     }
 
     @Test
     public void testUnknownFunction() {

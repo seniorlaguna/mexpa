@@ -1,6 +1,5 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.seniorlaguna.mexpa.BaseCalculator;
 import org.seniorlaguna.mexpa.BigDecimalCalculator;
 
@@ -11,6 +10,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class BigDecimalCalculatorTest {
 
     BigDecimalCalculator calculator;
+
+    private boolean testFunctionCall(String functionName, String[] values, double[] expectedResults) {
+        assert (values.length == expectedResults.length);
+        BigDecimal result;
+        for (int i = 0; i < values.length; i++) {
+            String expression = String.format("%s(%s)", functionName, values[i]);
+            result = eval(expression);
+            if (result.doubleValue() != expectedResults[i]) return false;
+        }
+        return true;
+    }
 
     private BigDecimal eval(String expression) {
         return calculator.evaluate(expression);
@@ -33,12 +43,7 @@ class BigDecimalCalculatorTest {
 
     @Test
     public void testCreateNewCalculatorWithInvalidParams() {
-        assertThrowsExactly(BigDecimalCalculator.InvalidStartUpConfigurationException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                calculator = new BigDecimalCalculator(-10, false, true, -25);
-            }
-        });
+        assertThrowsExactly(BigDecimalCalculator.InvalidStartUpConfigurationException.class, () -> calculator = new BigDecimalCalculator(-10, false, true, -25));
     }
 
     // number recognition tests
@@ -184,6 +189,12 @@ class BigDecimalCalculatorTest {
         assertEquals(9, result.intValue());
     }
 
+    @Test
+    public void testDivisionByZero() {
+        BigDecimalCalculator.CalculationException e = assertThrowsExactly(BigDecimalCalculator.CalculationException.class, () -> eval("4/0"));
+        assertEquals(BigDecimalCalculator.ERROR_MESSAGE.DIVISION_BY_ZERO, e.errorMessage);
+    }
+
     // brackets
     @Test
     public void testSingleBrackets() {
@@ -258,7 +269,8 @@ class BigDecimalCalculatorTest {
         assertEquals(2, result.intValue());
     }
 
-    @Test void testPrecedenceWithUnaryMinusAndPower() {
+    @Test
+    void testPrecedenceWithUnaryMinusAndPower() {
         BigDecimal result = eval("-1^2");
         assertEquals(-1, result.intValue());
 
@@ -335,6 +347,25 @@ class BigDecimalCalculatorTest {
         assertEquals(120, result.intValue());
     }
 
+    @Test
+    public void testFactorialBrackets() {
+        BigDecimal result = eval("(8-2)!");
+        assertEquals(720, result.intValue());
+    }
+
+    @Test
+    public void testFactorialWithNegativeValue() {
+        BigDecimalCalculator.CalculationException e = assertThrowsExactly(BigDecimalCalculator.CalculationException.class, () -> eval("-5!"));
+
+        assertEquals(BigDecimalCalculator.ERROR_MESSAGE.FACTORIAL_WITH_NEGATIVE_VALUE, e.errorMessage);
+    }
+
+    @Test
+    public void testFactorialWithNonInteger() {
+        BigDecimalCalculator.CalculationException e = assertThrowsExactly(BigDecimalCalculator.CalculationException.class, () -> eval("5.6!"));
+        assertEquals(BigDecimalCalculator.ERROR_MESSAGE.FACTORIAL_WITH_NON_INTEGER, e.errorMessage);
+    }
+
     // functions
     @Test
     public void testSquareRoot() {
@@ -343,82 +374,78 @@ class BigDecimalCalculatorTest {
     }
 
     @Test
-    public void testSinRad() {
-        String[] expressions    = {
-                "sin(0)",
-                "sin(π/6)",
-                "sin(π/4)",
-                "sin(π/3)",
-                "sin(π/2)",
-                "sin(2π/3)",
-                "sin(3π/4)",
-                "sin(5π/6)",
-                "sin(π)",
-                "sin(3π/2)",
-                "sin(2π)"
-        };
-        double[] results = {0, 0.5, 0.7, 0.86, 1, 0.86, 0.7, 0.5, 0, -1, 0};
-
-        for (int i=0; i<expressions.length; i++) {
-            BigDecimal result = eval(expressions[i]);
-            assertEquals(results[i], result.doubleValue());
-        }
+    public void testSquareRoot2() {
+        calculator.setDecimalPlaces(20);
+        calculator.setRoundingUp(false);
+        BigDecimal result = eval("√(8-6)");
+        assertEquals(0, new BigDecimal("1.41421356237309504880").compareTo(result));
     }
 
-     @Test
-     public void testSinDeg() {
-        calculator.setUseRadians(false);
-        BigDecimal result = eval("sin(0)");
-        assertEquals(0, result.doubleValue());
-         result = eval("sin(90)");
-         assertEquals(1, result.doubleValue());
-     }
+    @Test
+    public void testSinRad() {
+        calculator.setDecimalPlaces(2);
 
-     @Test
-     public void testCosRad() {
+        assertTrue(testFunctionCall(
+                "sin",
+                new String[]{"0", "π/6", "π/4", "π/3", "π/2", "2π/3", "3π/4", "5π/6", "π", "3π/2", "2π", "2π+π0.5", "-π/6"},
+                new double[]{0, 0.5, 0.7, 0.86, 1, 0.86, 0.7, 0.5, 0, -1, 0, 1, -0.5}
+        ));
+    }
+
+    @Test
+    public void testSinDeg() {
+        calculator.setDecimalPlaces(2);
+        calculator.setUseRadians(false);
+        assertTrue(testFunctionCall(
+                "sin",
+                new String[]{"0", "30", "45", "60", "90", "120", "135", "150", "180", "270", "360", "450", "-30"},
+                new double[]{0, 0.5, 0.7, 0.86, 1, 0.86, 0.7, 0.5, 0, -1, 0, 1, -0.5}
+        ));
+    }
+
+    @Test
+    public void testCosRad() {
         BigDecimal result = eval("cos(0)");
         assertEquals(1, result.doubleValue());
         result = eval("cos(π/2)");
         assertEquals(0, result.doubleValue());
-     }
+    }
 
-     @Test
-     public void testCosDeg() {
+    @Test
+    public void testCosDeg() {
         calculator.setUseRadians(false);
         BigDecimal result = eval("cos(0)");
         assertEquals(1, result.doubleValue());
         result = eval("cos(90)");
         assertEquals(0, result.doubleValue());
-     }
+    }
 
-     @Test
-     public void testTanRad() {
+    @Test
+    public void testTanRad() {
         BigDecimal result = eval("tan(0)");
         assertEquals(0, result.doubleValue());
         result = eval("tan(π/4)");
         assertEquals(1, result.doubleValue());
-     }
+    }
 
-     @Test void testTanDeg() {
+    @Test
+    public void testTanDeg() {
         calculator.setUseRadians(false);
         BigDecimal result = eval("tan(0)");
         assertEquals(0, result.doubleValue());
         result = eval("tan(45)");
         assertEquals(1, result.doubleValue());
-     }
+    }
 
     @Test
     public void testUnknownFunction() {
-        assertThrowsExactly(BaseCalculator.UnknownFunctionException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                BigDecimal result = eval("1+unknownFunction(10)");
-            }
-        });
+        assertThrowsExactly(BaseCalculator.UnknownFunctionException.class, () -> eval("1+unknownFunction(10)"));
     }
+
     // constants
     @Test
     public void testConstantE() {
+        calculator.setDecimalPlaces(2);
         BigDecimal result = eval("e");
         assertEquals(2.71, result.doubleValue());
     }
@@ -431,12 +458,7 @@ class BigDecimalCalculatorTest {
 
     @Test
     public void testUnknownConstant() {
-        assertThrowsExactly(BaseCalculator.UnknownConstantException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                eval("unknownConstant^2");
-            }
-        });
+        assertThrowsExactly(BaseCalculator.UnknownConstantException.class, () -> eval("unknownConstant^2"));
     }
 
     // calculator configuration

@@ -8,6 +8,12 @@ import java.math.RoundingMode;
 
 public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
 
+    public enum ERROR_MESSAGE {
+        FACTORIAL_WITH_NEGATIVE_VALUE,
+        FACTORIAL_WITH_NON_INTEGER,
+        DIVISION_BY_ZERO
+    }
+
     private MathContext mathContext;
     private int decimalPlaces;
     private boolean useRadians;
@@ -53,6 +59,7 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
 
     @Override
     public BigDecimal divide(BigDecimal left, BigDecimal right) {
+        if (right.compareTo(BigDecimal.ZERO) == 0) throw new CalculationException(ERROR_MESSAGE.DIVISION_BY_ZERO);
         return left.divide(right, MathContext.DECIMAL128);
     }
 
@@ -68,16 +75,18 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
 
     @Override
     public BigDecimal toPercentage(BigDecimal number) {
-        return number.divide(new BigDecimal(100));
+        return number.divide(new BigDecimal(100), MathContext.DECIMAL128);
     }
 
     @Override
     public BigDecimal toPercentage(BigDecimal number, BigDecimal fraction) {
-        return number.multiply(fraction.divide(new BigDecimal(100)));
+        return number.multiply(fraction.divide(new BigDecimal(100), MathContext.DECIMAL128));
     }
 
     @Override
     public BigDecimal factorial(BigDecimal number) {
+        if (number.compareTo(BigDecimal.ZERO) < 0) throw new CalculationException(ERROR_MESSAGE.FACTORIAL_WITH_NEGATIVE_VALUE);
+        if (number.intValue() != number.doubleValue()) throw new CalculationException(ERROR_MESSAGE.FACTORIAL_WITH_NON_INTEGER);
         return BigDecimalMath.factorial(number, MathContext.DECIMAL32);
     }
 
@@ -107,14 +116,11 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
 
     @Override
     public BigDecimal resolveConstant(String constantName) throws UnknownConstantException {
-        switch (constantName) {
-            case "e":
-                return BigDecimalMath.e(mathContext);
-            case "π":
-                return BigDecimalMath.pi(mathContext);
-            default:
-                throw new UnknownConstantException(constantName);
-        }
+        return switch (constantName) {
+            case "e" -> BigDecimalMath.e(mathContext);
+            case "π" -> BigDecimalMath.pi(mathContext);
+            default -> throw new UnknownConstantException(constantName);
+        };
     }
 
     public void setDecimalPlaces(int decimalPlaces) {
@@ -149,6 +155,14 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
 
     public int getPrecision() {
         return mathContext.getPrecision();
+    }
+
+    static public class CalculationException extends RuntimeException {
+        public ERROR_MESSAGE errorMessage;
+
+        CalculationException(ERROR_MESSAGE errorMessage) {
+            this.errorMessage = errorMessage;
+        }
     }
 
     static public class InvalidStartUpConfigurationException extends RuntimeException { }

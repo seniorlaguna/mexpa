@@ -17,7 +17,7 @@ class BigDecimalCalculatorTest {
         for (int i = 0; i < values.length; i++) {
             String expression = String.format("%s(%s)", functionName, values[i]);
             result = eval(expression);
-            if (result.doubleValue() != expectedResults[i]) return false;
+            if (result.doubleValue() != expectedResults[i]) throw new AssertionError(String.format("expected: %s=%f but got: %f", expression, expectedResults[i], result.doubleValue()));
         }
         return true;
     }
@@ -384,7 +384,6 @@ class BigDecimalCalculatorTest {
     @Test
     public void testSinRad() {
         calculator.setDecimalPlaces(2);
-
         assertTrue(testFunctionCall(
                 "sin",
                 new String[]{"0", "π/6", "π/4", "π/3", "π/2", "2π/3", "3π/4", "5π/6", "π", "3π/2", "2π", "2π+π0.5", "-π/6"},
@@ -405,36 +404,74 @@ class BigDecimalCalculatorTest {
 
     @Test
     public void testCosRad() {
-        BigDecimal result = eval("cos(0)");
-        assertEquals(1, result.doubleValue());
-        result = eval("cos(π/2)");
-        assertEquals(0, result.doubleValue());
+        calculator.setDecimalPlaces(4);
+        assertTrue(testFunctionCall(
+                "cos",
+                new String[]{"0", "π/6", "π/4", "π/3", "π/2", "2π/3", "3π/4", "5π/6", "π", "3π/2", "2π", "2π+π0.5", "-π/6"},
+                new double[]{1, 0.8660, 0.7071, 0.5, 0, -0.5, -0.7071, -0.8660, -1, 0, 1, 0, 0.8660}
+        ));
     }
 
     @Test
     public void testCosDeg() {
+        calculator.setDecimalPlaces(4);
         calculator.setUseRadians(false);
-        BigDecimal result = eval("cos(0)");
-        assertEquals(1, result.doubleValue());
-        result = eval("cos(90)");
-        assertEquals(0, result.doubleValue());
+        assertTrue(testFunctionCall(
+                "cos",
+                new String[]{"0", "30", "45", "60", "90", "120", "135", "150", "180", "270", "360", "450", "-30"},
+                new double[]{1, 0.8660, 0.7071, 0.5, 0, -0.5, -0.7071, -0.8660, -1, 0, 1, 0, 0.8660}
+        ));
     }
 
     @Test
     public void testTanRad() {
-        BigDecimal result = eval("tan(0)");
-        assertEquals(0, result.doubleValue());
-        result = eval("tan(π/4)");
-        assertEquals(1, result.doubleValue());
+        calculator.setDecimalPlaces(4);
+        assertTrue(testFunctionCall(
+                "tan",
+                new String[]{"0", "π/6", "π/4", "π/3", "2π/3", "3π/4", "5π/6", "π", "2π", "-π/6"},
+                new double[]{0,  0.5773,  1,  1.7320, -1.7320,  -1,   -0.5773,     0,     0,   -0.5773}
+        ));
     }
 
     @Test
     public void testTanDeg() {
+        calculator.setDecimalPlaces(4);
         calculator.setUseRadians(false);
-        BigDecimal result = eval("tan(0)");
-        assertEquals(0, result.doubleValue());
-        result = eval("tan(45)");
-        assertEquals(1, result.doubleValue());
+        assertTrue(testFunctionCall(
+                "tan",
+                new String[]{"0", "30", "45", "60" , "120",    "135", "150",    "180", "360", "-30"},
+                new double[]{0,  0.5773,  1,  1.7320, -1.7320,  -1,   -0.5773,     0,     0,   -0.5773}
+        ));
+    }
+
+    @Test
+    public void testLog10RoundingDown() {
+        calculator.setDecimalPlaces(4);
+        assertTrue(testFunctionCall(
+                "log",
+                new String[]{"0.5",     "1",      "2",      "3",      "4",      "6",      "8",     "10",    "100"},
+                new double[]{-0.3010, 0, 0.3010, 0.4771, 0.6020, 0.7781, 0.9030, 1, 2}
+        ));
+    }
+
+    @Test
+    public void testLnRoundingDown() {
+        calculator.setDecimalPlaces(4);
+        assertTrue(testFunctionCall(
+                "ln",
+                new String[]{"0.5",     "1",      "2",      "3",      "4",      "6",      "8",     "10",    "100"},
+                new double[]{-0.6931, 0, 0.6931, 1.0986, 1.3862, 1.7917, 2.0794, 2.3025, 4.6051}
+        ));
+    }
+
+    @Test
+    public void testLog2RoundingDown() {
+        calculator.setDecimalPlaces(4);
+        assertTrue(testFunctionCall(
+                "log2",
+                new String[]{"0.5",     "1",      "2",      "3",      "4",      "6",      "8",     "10",    "100"},
+                new double[]{-1, 0, 1, 1.5849, 2, 2.5849, 3, 3.3219, 6.6438}
+        ));
     }
 
     @Test

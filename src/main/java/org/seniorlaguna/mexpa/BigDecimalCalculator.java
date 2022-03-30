@@ -103,12 +103,18 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
                 return BigDecimalMath.sin(x, MathContext.DECIMAL32);
             case "cos":
                 if (!useRadians) x = degreesToRadians(x);
-                return BigDecimalMath.cos(x, mathContext);
+                return BigDecimalMath.cos(x, MathContext.DECIMAL32);
             case "tan":
                 if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.tan(x, MathContext.DECIMAL32);
             case "√":
                 return BigDecimalMath.sqrt(x, mathContext);
+            case "ln":
+                return BigDecimalMath.log(x, MathContext.DECIMAL32);
+            case "log2":
+                return BigDecimalMath.log2(x, MathContext.DECIMAL32);
+            case "log":
+                return BigDecimalMath.log10(x, MathContext.DECIMAL32);
             default:
                 throw new UnknownFunctionException(functionName);
         }

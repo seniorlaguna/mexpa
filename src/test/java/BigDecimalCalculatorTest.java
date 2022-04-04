@@ -4,6 +4,8 @@ import org.seniorlaguna.mexpa.BaseCalculator;
 import org.seniorlaguna.mexpa.BigDecimalCalculator;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,22 +30,31 @@ class BigDecimalCalculatorTest {
 
     @BeforeEach
     void setUp() {
-        calculator = new BigDecimalCalculator(2, false, true, 1024);
+        calculator = new BigDecimalCalculator();
     }
 
     // calculator instantiation
     @Test
     public void testCreateNewCalculator() {
-        calculator = new BigDecimalCalculator(100, true, false, 100);
+        calculator = new BigDecimalCalculator(100, RoundingMode.DOWN, false, 100);
         assertEquals(100, calculator.getDecimalPlaces());
-        assertTrue(calculator.getRoundingUp());
+        assertEquals(calculator.getRoundingMode(), RoundingMode.DOWN);
         assertFalse(calculator.getUseRadians());
         assertEquals(100, calculator.getPrecision());
     }
 
     @Test
+    public void testDefaultCalculator() {
+        calculator = new BigDecimalCalculator();
+        assertEquals(2, calculator.getDecimalPlaces());
+        assertEquals(RoundingMode.DOWN, calculator.getRoundingMode());
+        assertTrue(calculator.getUseRadians());
+        assertEquals(MathContext.DECIMAL128.getPrecision(), calculator.getPrecision());
+    }
+
+    @Test
     public void testCreateNewCalculatorWithInvalidParams() {
-        assertThrowsExactly(BigDecimalCalculator.InvalidStartUpConfigurationException.class, () -> calculator = new BigDecimalCalculator(-10, false, true, -25));
+        assertThrowsExactly(BigDecimalCalculator.InvalidStartUpConfigurationException.class, () -> calculator = new BigDecimalCalculator(-10, null, true, -25));
     }
 
     // number recognition tests
@@ -376,7 +387,7 @@ class BigDecimalCalculatorTest {
     @Test
     public void testSquareRoot2() {
         calculator.setDecimalPlaces(20);
-        calculator.setRoundingUp(false);
+        calculator.setRoundingMode(RoundingMode.DOWN);
         BigDecimal result = eval("√(8-6)");
         assertEquals(0, new BigDecimal("1.41421356237309504880").compareTo(result));
     }
@@ -479,6 +490,11 @@ class BigDecimalCalculatorTest {
         assertThrowsExactly(BaseCalculator.UnknownFunctionException.class, () -> eval("1+unknownFunction(10)"));
     }
 
+    @Test
+    public void testMissingTrigonometricFunctions() {
+        eval("asin(0)+acos(0)+atan(0)+acot(0)+sinh(0)+cosh(0)+tanh(0)+coth(1)+asinh(0)+acosh(1)+atanh(0)+acoth(2)");
+    }
+
     // constants
     @Test
     public void testConstantE() {
@@ -528,20 +544,20 @@ class BigDecimalCalculatorTest {
 
     @Test
     public void testSetRoundingUp() {
-        calculator.setRoundingUp(true);
+        calculator.setRoundingMode(RoundingMode.UP);
     }
 
     @Test
     public void testGetRoundingUp() {
-        boolean roundUp = calculator.getRoundingUp();
+        RoundingMode roundUp = calculator.getRoundingMode();
     }
 
     @Test
     public void testRoundingUpPersistence() {
-        calculator.setRoundingUp(true);
-        assertTrue(calculator.getRoundingUp());
-        calculator.setRoundingUp(false);
-        assertFalse(calculator.getRoundingUp());
+        calculator.setRoundingMode(RoundingMode.UP);
+        assertEquals(RoundingMode.UP, calculator.getRoundingMode());
+        calculator.setRoundingMode(RoundingMode.DOWN);
+        assertEquals(RoundingMode.DOWN, calculator.getRoundingMode());
     }
 
     @Test

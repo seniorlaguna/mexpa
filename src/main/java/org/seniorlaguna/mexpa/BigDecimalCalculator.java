@@ -18,13 +18,18 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
     private int decimalPlaces;
     private boolean useRadians;
 
-
-    public BigDecimalCalculator(int decimalPlaces, boolean roundingUp, boolean useRadians, int precision) throws InvalidStartUpConfigurationException {
+    public BigDecimalCalculator(int decimalPlaces, RoundingMode roundingMode, boolean useRadians, int precision) throws InvalidStartUpConfigurationException {
         if (decimalPlaces < 0 || precision < 0) throw new InvalidStartUpConfigurationException();
 
-        mathContext = new MathContext(precision, roundingUp ? RoundingMode.UP : RoundingMode.DOWN);
+        mathContext = new MathContext(precision, roundingMode);
         this.decimalPlaces = decimalPlaces;
         this.useRadians = useRadians;
+    }
+
+    public BigDecimalCalculator() {
+        mathContext = new MathContext(MathContext.DECIMAL128.getPrecision(), RoundingMode.DOWN);
+        decimalPlaces = 2;
+        useRadians = true;
     }
 
     private BigDecimal degreesToRadians(BigDecimal degrees) {
@@ -101,12 +106,38 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
             case "sin":
                 if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.sin(x, MathContext.DECIMAL32);
+            case "asin":
+                return BigDecimalMath.asin(x, MathContext.DECIMAL32);
+            case "sinh":
+                return BigDecimalMath.sinh(x, MathContext.DECIMAL32);
+            case "asinh":
+                return BigDecimalMath.asinh(x, MathContext.DECIMAL32);
             case "cos":
                 if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.cos(x, MathContext.DECIMAL32);
+            case "acos":
+                return BigDecimalMath.acos(x, MathContext.DECIMAL32);
+            case "cosh":
+                return BigDecimalMath.cosh(x, MathContext.DECIMAL32);
+            case "acosh":
+                return BigDecimalMath.acosh(x, MathContext.DECIMAL32);
             case "tan":
                 if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.tan(x, MathContext.DECIMAL32);
+            case "atan":
+                return BigDecimalMath.atan(x, MathContext.DECIMAL32);
+            case "tanh":
+                return BigDecimalMath.tanh(x, MathContext.DECIMAL32);
+            case "atanh":
+                return BigDecimalMath.atanh(x, MathContext.DECIMAL32);
+            case "cot":
+                return BigDecimalMath.cot(x, MathContext.DECIMAL32);
+            case "acot":
+                return BigDecimalMath.acot(x, MathContext.DECIMAL32);
+            case "coth":
+                return BigDecimalMath.coth(x, MathContext.DECIMAL32);
+            case "acoth":
+                return BigDecimalMath.acoth(x, MathContext.DECIMAL32);
             case "√":
                 return BigDecimalMath.sqrt(x, mathContext);
             case "ln":
@@ -138,12 +169,12 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
         return decimalPlaces;
     }
 
-    public void setRoundingUp(boolean roundUp) {
-        mathContext = new MathContext(mathContext.getPrecision(), roundUp ? RoundingMode.UP : RoundingMode.DOWN);
+    public void setRoundingMode(RoundingMode mode) {
+        mathContext = new MathContext(mathContext.getPrecision(), mode);
     }
 
-    public boolean getRoundingUp() {
-        return mathContext.getRoundingMode() == RoundingMode.UP;
+    public RoundingMode getRoundingMode() {
+        return mathContext.getRoundingMode();
     }
 
     public void setUseRadians(boolean useRadians) {

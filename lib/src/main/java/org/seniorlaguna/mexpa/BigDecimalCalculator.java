@@ -153,11 +153,14 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
 
     @Override
     public BigDecimal resolveConstant(String constantName) throws UnknownConstantException {
-        return switch (constantName) {
-            case "e" -> BigDecimalMath.e(mathContext);
-            case "π" -> BigDecimalMath.pi(mathContext);
-            default -> throw new UnknownConstantException(constantName);
-        };
+        switch (constantName) {
+            case "e":
+                return BigDecimalMath.e(mathContext);
+            case "π":
+                return BigDecimalMath.pi(mathContext);
+            default:
+                throw new UnknownConstantException(constantName);
+        }
     }
 
     public void setDecimalPlaces(int decimalPlaces) {

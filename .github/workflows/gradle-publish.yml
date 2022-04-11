@@ -8,6 +8,7 @@
 name: Test, Build & Publish
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
 

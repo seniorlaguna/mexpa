@@ -1,2 +1,3 @@
 rootProject.name = 'mexpa'
-include("lib")
+include ':lib', ':parser'
+

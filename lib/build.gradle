@@ -3,6 +3,28 @@ plugins {
     id 'maven-publish'
 
 }
+
+group 'org.seniorlaguna'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+    implementation project(':parser')
+    implementation 'ch.obermuhlner:big-math:2.3.0'
+    implementation 'org.antlr:antlr4-runtime:4.9.3'
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
 publishing {
     repositories {
         maven {
@@ -22,22 +44,4 @@ publishing {
             from(components.java)
         }
     }
-}
-
-group 'org.seniorlaguna'
-version '1.0'
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-
-    implementation fileTree(dir: 'libs', include: '*.jar')
-}
-
-test {
-    useJUnitPlatform()
 }

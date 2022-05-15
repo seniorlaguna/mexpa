@@ -15,7 +15,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
-    api project(':parser')
+    implementation project(':mexpa-parser')
     implementation 'ch.obermuhlner:big-math:2.3.0'
     implementation 'org.antlr:antlr4-runtime:4.9.3'
 

@@ -1,4 +1,4 @@
 rootProject.name = 'mexpa'
-include ':lib', ':parser'
-include 'example'
+include ':lib', ':mexpa-parser'
+project(':mexpa-parser').projectDir = new File('mexpa-parser/lib')
 

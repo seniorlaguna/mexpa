@@ -1,0 +1,3 @@
+[submodule "mexpa-parser"]
+	path = mexpa-parser
+	url = git@github.com:seniorlaguna/mexpa-parser.git

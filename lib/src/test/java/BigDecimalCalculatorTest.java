@@ -456,6 +456,48 @@ class BigDecimalCalculatorTest {
     }
 
     @Test
+    public void testCotRad() {
+        calculator.setDecimalPlaces(4);
+        assertTrue(testFunctionCall(
+                "cot",
+                new String[]{"π/4", "π/2", "3π/4", "π/4+π", "π/2+π", "3π/4+π"},
+                new double[]{  1,     0,     -1,      1,       0,       -1}
+        ));
+    }
+
+    @Test
+    public void testCotDeg() {
+        calculator.setDecimalPlaces(4);
+        calculator.setUseRadians(false);
+        assertTrue(testFunctionCall(
+                "cot",
+                new String[]{"45", "90", "135", "225", "270", "315"},
+                new double[]{1, 0, -1, 1, 0, -1}
+        ));
+    }
+
+    @Test
+    public void testAsinRad() {
+        calculator.setDecimalPlaces(4);
+        assertTrue(testFunctionCall(
+                "asin",
+                new String[]{"-1", "-0.5", "0", "0.5", "1"},
+                new double[]{-1.5707, -0.5235 ,0, 0.5235, 1.5707}
+        ));
+    }
+
+    @Test
+    public void testAsinDeg() {
+        calculator.setDecimalPlaces(4);
+        calculator.setUseRadians(false);
+        assertTrue(testFunctionCall(
+                "asin",
+                new String[]{"-1", "-0.5", "0", "0.5", "1"},
+                new double[]{-90, -30, 0, 30, 90}
+        ));
+    }
+
+    @Test
     public void testLog10RoundingDown() {
         calculator.setDecimalPlaces(4);
         assertTrue(testFunctionCall(
@@ -488,11 +530,6 @@ class BigDecimalCalculatorTest {
     @Test
     public void testUnknownFunction() {
         assertThrowsExactly(BaseCalculator.UnknownFunctionException.class, () -> eval("1+unknownFunction(10)"));
-    }
-
-    @Test
-    public void testMissingTrigonometricFunctions() {
-        eval("asin(0)+acos(0)+atan(0)+acot(0)+sinh(0)+cosh(0)+tanh(0)+coth(1)+asinh(0)+acosh(1)+atanh(0)+acoth(2)");
     }
 
     // constants

@@ -37,6 +37,11 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
         return degrees.multiply(factor);
     }
 
+    private BigDecimal radiansToDegrees(BigDecimal radians) {
+        BigDecimal factor = new BigDecimal(180).divide(BigDecimalMath.pi(mathContext), MathContext.DECIMAL32);
+        return radians.multiply(factor);
+    }
+
     @Override
     public BigDecimal evaluate(String expression) {
         return super.evaluate(expression).setScale(decimalPlaces, mathContext.getRoundingMode()).stripTrailingZeros();
@@ -107,36 +112,49 @@ public final class BigDecimalCalculator extends BaseCalculator<BigDecimal> {
                 if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.sin(x, MathContext.DECIMAL32);
             case "asin":
+                if (!useRadians) return radiansToDegrees(BigDecimalMath.asin(x, MathContext.DECIMAL32));
                 return BigDecimalMath.asin(x, MathContext.DECIMAL32);
             case "sinh":
+                if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.sinh(x, MathContext.DECIMAL32);
             case "asinh":
+                if (!useRadians) return radiansToDegrees(BigDecimalMath.asinh(x, MathContext.DECIMAL32));
                 return BigDecimalMath.asinh(x, MathContext.DECIMAL32);
             case "cos":
                 if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.cos(x, MathContext.DECIMAL32);
             case "acos":
+                if (!useRadians) return radiansToDegrees(BigDecimalMath.acos(x, MathContext.DECIMAL32));
                 return BigDecimalMath.acos(x, MathContext.DECIMAL32);
             case "cosh":
+                if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.cosh(x, MathContext.DECIMAL32);
             case "acosh":
+                if (!useRadians) return radiansToDegrees(BigDecimalMath.acosh(x, MathContext.DECIMAL32));
                 return BigDecimalMath.acosh(x, MathContext.DECIMAL32);
             case "tan":
                 if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.tan(x, MathContext.DECIMAL32);
             case "atan":
+                if (!useRadians) return radiansToDegrees(BigDecimalMath.atan(x, MathContext.DECIMAL32));
                 return BigDecimalMath.atan(x, MathContext.DECIMAL32);
             case "tanh":
+                if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.tanh(x, MathContext.DECIMAL32);
             case "atanh":
+                if (!useRadians) return radiansToDegrees(BigDecimalMath.atanh(x, MathContext.DECIMAL32));
                 return BigDecimalMath.atanh(x, MathContext.DECIMAL32);
             case "cot":
+                if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.cot(x, MathContext.DECIMAL32);
             case "acot":
+                if (!useRadians) return radiansToDegrees(BigDecimalMath.acot(x, MathContext.DECIMAL32));
                 return BigDecimalMath.acot(x, MathContext.DECIMAL32);
             case "coth":
+                if (!useRadians) x = degreesToRadians(x);
                 return BigDecimalMath.coth(x, MathContext.DECIMAL32);
             case "acoth":
+                if (!useRadians) return radiansToDegrees(BigDecimalMath.acoth(x, MathContext.DECIMAL32));
                 return BigDecimalMath.acoth(x, MathContext.DECIMAL32);
             case "√":
                 return BigDecimalMath.sqrt(x, mathContext);
